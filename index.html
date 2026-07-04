@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Anush — Data Science & Product</title>
+<meta name="description" content="Anush — Applied Data Science student at Penn State. Building agentic AI tools, trackers, and a painting business. Recruiting for Summer 2027 DS/PM internships.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   TOKENS
+   ============================================================ */
+:root {
+  --paper: #F7F5F0;
+  --paper-raised: #FFFFFF;
+  --ink: #1A1915;
+  --ink-soft: #55534B;
+  --ink-faint: #8B887D;
+  --line: #DDD9CE;
+  --accent: #1E407C;        /* Penn State Beaver Blue */
+  --accent-soft: #E7ECF5;
+  --ok: #2F7D4F;            /* status: deployed */
+  --wip: #B0700F;           /* status: in progress */
+
+  --font-display: 'Archivo', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --rail-w: 300px;
+  --max-content: 760px;
+  --radius: 6px;
+}
+
+/* ============================================================
+   RESET + BASE
+   ============================================================ */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+}
+
+body {
+  font-family: var(--font-display);
+  background: var(--paper);
+  color: var(--ink);
+  line-height: 1.6;
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection { background: var(--accent); color: var(--paper); }
+
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  background: var(--ink);
+  color: var(--paper);
+  padding: 0.6rem 1rem;
+  z-index: 100;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+.skip-link:focus { left: 0.5rem; top: 0.5rem; }
+
+/* ============================================================
+   LAYOUT — sticky rail + scrolling file
+   ============================================================ */
+.layout {
+  display: grid;
+  grid-template-columns: var(--rail-w) 1fr;
+  min-height: 100vh;
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+/* ---- LEFT RAIL ---- */
+.rail {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  padding: 2.5rem 2rem;
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.rail-name {
+  font-weight: 800;
+  font-size: 1.35rem;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+.rail-name .cursor {
+  display: inline-block;
+  width: 0.55em;
+  height: 1.05em;
+  background: var(--accent);
+  vertical-align: text-bottom;
+  margin-left: 2px;
+  animation: blink 1.2s steps(1) infinite;
+}
+@keyframes blink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) {
+  .rail-name .cursor { animation: none; }
+}
+
+/* file metadata block */
+.meta {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--ink-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper-raised);
+  padding: 0.9rem 1rem;
+  display: grid;
+  gap: 0.35rem;
+}
+.meta dt { color: var(--ink-faint); float: left; width: 5.2em; }
+.meta dd { margin: 0; }
+.meta .live-dot {
+  display: inline-block;
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  background: var(--ok);
+  margin-right: 5px;
+  vertical-align: 1px;
+}
+
+/* nav — keycap style */
+.rail-nav { display: grid; gap: 0.5rem; }
+.rail-nav a {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--ink);
+  font-weight: 500;
+  font-size: 0.95rem;
+  padding: 0.35rem 0.25rem;
+  border-radius: 4px;
+}
+.rail-nav a:hover { text-decoration: none; color: var(--accent); }
+.rail-nav a:hover .key { transform: translateY(1px); box-shadow: 0 1px 0 var(--line); }
+.rail-nav a.active { color: var(--accent); }
+.rail-nav a.active .key { border-color: var(--accent); color: var(--accent); }
+
+.key {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  width: 1.7rem; height: 1.7rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--paper-raised);
+  box-shadow: 0 2px 0 var(--line);
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+  flex-shrink: 0;
+}
+
+.rail-foot {
+  margin-top: auto;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--ink-faint);
+  line-height: 1.7;
+}
+.rail-foot kbd {
+  font-family: inherit;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 0 4px;
+  background: var(--paper-raised);
+}
+
+/* ---- MAIN ---- */
+main {
+  padding: 3.5rem 3.5rem 5rem;
+  max-width: calc(var(--max-content) + 7rem);
+}
+
+section { margin-bottom: 5.5rem; }
+section:last-child { margin-bottom: 0; }
+
+/* section label — file-path eyebrow */
+.path {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--ink-faint);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.path::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--line);
+}
+.path .tilde { color: var(--accent); }
+
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero h1 {
+  font-size: clamp(2.1rem, 5vw, 3.1rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+  max-width: 18ch;
+  margin-bottom: 1.5rem;
+}
+.hero h1 .accent { color: var(--accent); }
+
+.hero .lede {
+  font-size: 1.08rem;
+  color: var(--ink-soft);
+  max-width: 56ch;
+  margin-bottom: 2rem;
+}
+
+.hero-status {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.tag {
+  border: 1px solid var(--line);
+  background: var(--paper-raised);
+  border-radius: 999px;
+  padding: 0.3rem 0.85rem;
+  color: var(--ink-soft);
+}
+.tag strong { color: var(--accent); font-weight: 700; }
+
+/* ============================================================
+   PROJECTS — file entries
+   ============================================================ */
+.entry {
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--paper-raised);
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+.entry:hover {
+  border-color: var(--accent);
+  box-shadow: 0 3px 14px rgba(30, 64, 124, 0.07);
+}
+
+.entry-head {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  padding: 1.25rem 1.5rem 0;
+}
+.entry-index {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ink-faint);
+  flex-shrink: 0;
+}
+.entry h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  flex: 1;
+}
+.status {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  white-space: nowrap;
+  padding: 0.15rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid;
+}
+.status.deployed { color: var(--ok); border-color: currentColor; }
+.status.wip      { color: var(--wip); border-color: currentColor; }
+.status.active   { color: var(--accent); border-color: currentColor; }
+
+.entry-body { padding: 0.75rem 1.5rem 1.25rem; }
+.entry-body > p {
+  color: var(--ink-soft);
+  margin-bottom: 1rem;
+  max-width: 60ch;
+}
+
+/* structured readout: problem / stack */
+.readout {
+  font-size: 0.9rem;
+  display: grid;
+  gap: 0.4rem;
+  margin-bottom: 1.1rem;
+}
+.readout div { display: flex; gap: 0.75rem; align-items: baseline; }
+.readout dt {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--ink-faint);
+  width: 4.5em;
+  flex-shrink: 0;
+  text-transform: lowercase;
+}
+.readout dd { color: var(--ink); }
+.readout .stack dd { font-family: var(--font-mono); font-size: 0.78rem; color: var(--ink-soft); }
+
+.entry-links {
+  display: flex;
+  gap: 1.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+.entry-links a {
+  font-weight: 500;
+  position: relative;
+}
+.entry-links a::before { content: "→ "; color: var(--ink-faint); }
+
+/* ============================================================
+   ABOUT
+   ============================================================ */
+.about p {
+  max-width: 62ch;
+  margin-bottom: 1.1rem;
+  color: var(--ink-soft);
+}
+.about p strong { color: var(--ink); font-weight: 700; }
+
+.about-facts {
+  margin-top: 1.75rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+.fact {
+  border-left: 2px solid var(--accent);
+  padding-left: 1rem;
+}
+.fact .fact-label {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--ink-faint);
+  display: block;
+  margin-bottom: 0.2rem;
+}
+.fact .fact-value { font-weight: 700; font-size: 0.95rem; }
+.fact .fact-sub { font-size: 0.85rem; color: var(--ink-soft); }
+
+/* ============================================================
+   SKILLS — inline mono chips
+   ============================================================ */
+.skills-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  list-style: none;
+}
+.skills-list li {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  border: 1px solid var(--line);
+  background: var(--paper-raised);
+  border-radius: 5px;
+  padding: 0.4rem 0.8rem;
+  box-shadow: 0 2px 0 var(--line);
+  transition: transform 0.08s ease, box-shadow 0.08s ease, border-color 0.15s ease;
+  cursor: default;
+}
+.skills-list li:hover {
+  transform: translateY(1px);
+  box-shadow: 0 1px 0 var(--line);
+  border-color: var(--accent);
+}
+.skills-note {
+  margin-top: 1.25rem;
+  font-size: 0.9rem;
+  color: var(--ink-faint);
+  max-width: 55ch;
+}
+
+/* ============================================================
+   CONTACT
+   ============================================================ */
+.contact p { max-width: 55ch; color: var(--ink-soft); margin-bottom: 1.75rem; }
+
+.contact-actions { display: flex; flex-wrap: wrap; gap: 1rem; }
+.btn {
+  font-family: var(--font-mono);
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 0.7rem 1.4rem;
+  border-radius: 6px;
+  border: 1px solid var(--ink);
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+.btn:hover { text-decoration: none; transform: translateY(1px); }
+.btn-primary {
+  background: var(--ink);
+  color: var(--paper);
+  box-shadow: 0 3px 0 var(--accent);
+}
+.btn-primary:hover { box-shadow: 0 1px 0 var(--accent); }
+.btn-ghost {
+  color: var(--ink);
+  background: var(--paper-raised);
+  box-shadow: 0 3px 0 var(--line);
+}
+.btn-ghost:hover { box-shadow: 0 1px 0 var(--line); }
+
+footer {
+  margin-top: 4rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--ink-faint);
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* ============================================================
+   SCROLL REVEAL
+   ============================================================ */
+.reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.reveal.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) {
+  .reveal { opacity: 1; transform: none; transition: none; }
+}
+
+/* ============================================================
+   RESPONSIVE — rail collapses to top bar
+   ============================================================ */
+@media (max-width: 860px) {
+  .layout { grid-template-columns: 1fr; }
+  .rail {
+    position: static;
+    height: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--line);
+    padding: 1.5rem 1.25rem;
+    gap: 1.25rem;
+  }
+  .rail-nav {
+    grid-auto-flow: column;
+    justify-content: start;
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 0.25rem;
+  }
+  .rail-nav a { font-size: 0.85rem; }
+  .rail-foot { display: none; }
+  main { padding: 2.5rem 1.25rem 3.5rem; }
+  section { margin-bottom: 4rem; }
+  .entry-head { flex-wrap: wrap; padding: 1.1rem 1.1rem 0; }
+  .entry-body { padding: 0.6rem 1.1rem 1.1rem; }
+  .readout div { flex-direction: column; gap: 0.1rem; }
+}
+</style>
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<div class="layout">
+
+  <!-- ================= LEFT RAIL ================= -->
+  <header class="rail">
+    <div>
+      <p class="rail-name">Anush<span class="cursor" aria-hidden="true"></span></p>
+    </div>
+
+    <dl class="meta" aria-label="Current status">
+      <div><dt>status</dt><dd><span class="live-dot" aria-hidden="true"></span>recruiting</dd></div>
+      <div><dt>target</dt><dd>Summer 2027 · DS / PM</dd></div>
+      <div><dt>school</dt><dd>Penn State '28</dd></div>
+      <div><dt>base</dt><dd>Pittsburgh, PA</dd></div>
+    </dl>
+
+    <nav class="rail-nav" aria-label="Sections">
+      <a href="#projects"><span class="key" aria-hidden="true">P</span>Projects</a>
+      <a href="#about"><span class="key" aria-hidden="true">A</span>About</a>
+      <a href="#skills"><span class="key" aria-hidden="true">S</span>Skills</a>
+      <a href="#contact"><span class="key" aria-hidden="true">C</span>Contact</a>
+    </nav>
+
+    <p class="rail-foot">
+      Tip: press <kbd>P</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>C</kbd> to jump around.<br>
+      Built on a real keyboard with real switches.
+    </p>
+  </header>
+
+  <!-- ================= MAIN ================= -->
+  <main id="main">
+
+    <!-- HERO -->
+    <section class="hero" aria-label="Intro">
+      <p class="path"><span class="tilde">~</span>/anush/readme.md</p>
+      <h1>I build tools that turn messy data into <span class="accent">decisions.</span></h1>
+      <p class="lede">
+        I'm a rising sophomore studying Applied Data Science at Penn State. Right now I'm
+        building an agentic AI due diligence pipeline, running a painting business with a
+        friend, and looking for a Summer 2027 internship in data science or product management —
+        I like both sides: building the model and deciding what's worth building.
+      </p>
+      <div class="hero-status">
+        <span class="tag">open to: <strong>DS internships</strong></span>
+        <span class="tag">open to: <strong>PM internships</strong></span>
+        <span class="tag">Summer 2027</span>
+      </div>
+    </section>
+
+    <!-- PROJECTS -->
+    <section id="projects" aria-labelledby="projects-h">
+      <p class="path"><span class="tilde">~</span>/anush/projects/</p>
+      <h2 class="sr-only" id="projects-h" style="position:absolute;left:-9999px;">Projects</h2>
+
+      <article class="entry reveal">
+        <div class="entry-head">
+          <span class="entry-index">01</span>
+          <h3>Agentic AI Due Diligence Tool</h3>
+          <span class="status wip">in progress</span>
+        </div>
+        <div class="entry-body">
+          <p>
+            Five AI agents that read a company like an analyst team would — each one owns a
+            slice of the research, and the pipeline adapts its questions to the company's
+            sector instead of running the same generic checklist on everything.
+          </p>
+          <dl class="readout">
+            <div><dt>problem</dt><dd>Early-stage due diligence is slow, manual, and one-size-fits-all.</dd></div>
+            <div class="stack"><dt>stack</dt><dd>Python · multi-agent pipeline · Streamlit</dd></div>
+            <div><dt>built</dt><dd>With a partner — I own agent orchestration and the front end.</dd></div>
+          </dl>
+          <div class="entry-links">
+            <a href="#">GitHub</a>
+            <a href="#">Live demo</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="entry reveal">
+        <div class="entry-head">
+          <span class="entry-index">02</span>
+          <h3>Energy Price Tracker</h3>
+          <span class="status deployed">deployed</span>
+        </div>
+        <div class="entry-body">
+          <p>
+            Pulls live energy price data and turns it into charts you can actually read.
+            Built because energy pricing data is public but scattered — this puts the trend
+            in front of you in one view.
+          </p>
+          <dl class="readout">
+            <div><dt>problem</dt><dd>Energy price data exists, but nobody presents it clearly.</dd></div>
+            <div class="stack"><dt>stack</dt><dd>Python · Streamlit · Plotly · Pandas</dd></div>
+          </dl>
+          <div class="entry-links">
+            <a href="#">GitHub</a>
+            <a href="#">Live demo</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="entry reveal">
+        <div class="entry-head">
+          <span class="entry-index">03</span>
+          <h3>Budget Tracker</h3>
+          <span class="status wip">deploying</span>
+        </div>
+        <div class="entry-body">
+          <p>
+            A personal finance app that logs spending, categorizes it, and shows where the
+            money actually goes. Built to solve my own problem first — college budgets are
+            unforgiving.
+          </p>
+          <dl class="readout">
+            <div><dt>problem</dt><dd>Most budget apps are bloated. I wanted fast logging and honest charts.</dd></div>
+            <div class="stack"><dt>stack</dt><dd>Python · Streamlit · SQLite · Plotly</dd></div>
+            <div><dt>status</dt><dd>Heading to Streamlit Cloud — live link coming soon.</dd></div>
+          </dl>
+          <div class="entry-links">
+            <a href="#">GitHub</a>
+          </div>
+        </div>
+      </article>
+
+      <article class="entry reveal">
+        <div class="entry-head">
+          <span class="entry-index">04</span>
+          <h3>Brush Bros</h3>
+          <span class="status active">operating</span>
+        </div>
+        <div class="entry-body">
+          <p>
+            A painting business I co-founded and run with my partner Nick. Not a coding
+            project — a real one. Quoting jobs, scheduling crews, buying materials, keeping
+            customers happy. Every product lesson I have started here.
+          </p>
+          <dl class="readout">
+            <div><dt>problem</dt><dd>Homeowners want reliable, well-priced painting without the runaround.</dd></div>
+            <div class="stack"><dt>stack</dt><dd>Quoting · ops · customer pipeline · branding (we made the logo too)</dd></div>
+          </dl>
+          <div class="entry-links">
+            <a href="#">Brush Bros site</a>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about" class="about" aria-labelledby="about-h">
+      <p class="path"><span class="tilde">~</span>/anush/about.md</p>
+      <h2 id="about-h" style="position:absolute;left:-9999px;">About</h2>
+      <p>
+        I'm studying <strong>Applied Data Science at Penn State</strong>, where I spend most of
+        my time building things in Python and figuring out how to make data useful to people
+        who don't care about the code behind it.
+      </p>
+      <p>
+        Outside class, I run <strong>Brush Bros</strong> — a painting business that taught me
+        more about pricing, customers, and operations than any lecture could. I also volunteer
+        at <strong>UPMC Washington Hospital's ER</strong>, where I train pre-med students from
+        Washington &amp; Jefferson College. Teaching people under pressure is a skill I didn't
+        expect to pick up at a hospital, but here we are.
+      </p>
+      <p>
+        When I'm not working: custom mechanical keyboard builds and combat sports training.
+        One requires patience and precision. The other one also requires patience and precision,
+        just with more bruises.
+      </p>
+
+      <div class="about-facts">
+        <div class="fact">
+          <span class="fact-label">education</span>
+          <span class="fact-value">Penn State</span>
+          <span class="fact-sub">B.S. Applied Data Science, Class of 2028</span>
+        </div>
+        <div class="fact">
+          <span class="fact-label">venture</span>
+          <span class="fact-value">Brush Bros</span>
+          <span class="fact-sub">Co-founder — quoting, ops, customer pipeline</span>
+        </div>
+        <div class="fact">
+          <span class="fact-label">service</span>
+          <span class="fact-value">UPMC Washington ER</span>
+          <span class="fact-sub">Volunteer trainer for pre-med students</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- SKILLS -->
+    <section id="skills" aria-labelledby="skills-h">
+      <p class="path"><span class="tilde">~</span>/anush/skills.txt</p>
+      <h2 id="skills-h" style="position:absolute;left:-9999px;">Skills</h2>
+      <ul class="skills-list">
+        <li>Python</li>
+        <li>SQL</li>
+        <li>Streamlit</li>
+        <li>Pandas</li>
+        <li>Plotly</li>
+        <li>scikit-learn</li>
+        <li>Git / GitHub</li>
+      </ul>
+      <p class="skills-note">
+        Everything above has shipped in a real project — nothing on this list is
+        "familiar with" padding.
+      </p>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="contact" aria-labelledby="contact-h">
+      <p class="path"><span class="tilde">~</span>/anush/contact.md</p>
+      <h2 id="contact-h" style="position:absolute;left:-9999px;">Contact</h2>
+      <p>
+        If you're hiring for Summer 2027 — data science or product — I'd like to talk.
+        I respond fast and I show up prepared.
+      </p>
+      <div class="contact-actions">
+        <a class="btn btn-primary" href="#">Download resume</a>
+        <a class="btn btn-ghost" href="mailto:you@email.com">Email me</a>
+        <a class="btn btn-ghost" href="#">LinkedIn</a>
+        <a class="btn btn-ghost" href="#">GitHub</a>
+      </div>
+
+      <footer>
+        <span>© 2026 Anush</span>
+        <span>hand-built · no template · one HTML file</span>
+      </footer>
+    </section>
+
+  </main>
+</div>
+
+<script>
+// ------- Scroll reveal (respects reduced motion) -------
+const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (!prefersReduced && 'IntersectionObserver' in window) {
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+    });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+} else {
+  document.querySelectorAll('.reveal').forEach(el => el.classList.add('in'));
+}
+
+// ------- Keyboard shortcuts: P / A / S / C -------
+const shortcuts = { p: '#projects', a: '#about', s: '#skills', c: '#contact' };
+document.addEventListener('keydown', (e) => {
+  // don't hijack typing, or modified keys
+  const tag = document.activeElement.tagName;
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || e.metaKey || e.ctrlKey || e.altKey) return;
+  const target = shortcuts[e.key.toLowerCase()];
+  if (target) {
+    document.querySelector(target)?.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth' });
+    history.replaceState(null, '', target);
+  }
+});
+
+// ------- Active nav highlighting -------
+const navLinks = document.querySelectorAll('.rail-nav a');
+const sections = [...navLinks].map(a => document.querySelector(a.getAttribute('href')));
+if ('IntersectionObserver' in window) {
+  const navIO = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        navLinks.forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + e.target.id));
+      }
+    });
+  }, { rootMargin: '-40% 0px -55% 0px' });
+  sections.forEach(s => s && navIO.observe(s));
+}
+</script>
+
+</body>
+</html>
