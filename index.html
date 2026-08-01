@@ -245,21 +245,68 @@ section:last-of-type { border-bottom: none; }
   color: var(--ink-faint);
   margin-bottom: 1rem;
 }
+.fig-label {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin-bottom: 0.6rem;
+}
+.fig-label::before {
+  content: "";
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--go);
+  flex-shrink: 0;
+}
+
 .portrait-wrap {
   position: relative;
   width: 100%;
   aspect-ratio: 1 / 1;
   border-radius: 6px;
   overflow: hidden;
-  margin-bottom: 1rem;
+  margin-bottom: 0.6rem;
   border: 1px solid var(--line);
   background: #0C1012;
+}
+.corner {
+  position: absolute;
+  width: 16px; height: 16px;
+  z-index: 4;
+  pointer-events: none;
+}
+.corner.tl { top: 8px; left: 8px; border-top: 2px solid var(--route); border-left: 2px solid var(--route); }
+.corner.tr { top: 8px; right: 8px; border-top: 2px solid var(--route); border-right: 2px solid var(--route); }
+.corner.bl { bottom: 8px; left: 8px; border-bottom: 2px solid var(--route); border-left: 2px solid var(--route); }
+.corner.br { bottom: 8px; right: 8px; border-bottom: 2px solid var(--route); border-right: 2px solid var(--route); }
+
+.portrait-caption {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  color: var(--ink-faint);
+  margin-bottom: 1.1rem;
 }
 .portrait {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+.portrait-tint {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: rgba(111, 163, 199, 0.22);
+  mix-blend-mode: color;
 }
 
 /* holo tint sweep */
@@ -590,8 +637,18 @@ footer {
       </div>
 
       <aside class="permit-card" aria-label="Contact details">
+        <p class="fig-label">Fig.01 — self</p>
         <div class="portrait-wrap">
           <img class="portrait" src="images/headshot.jpg" alt="Anush Desai portrait">
+          <div class="portrait-tint" aria-hidden="true"></div>
+          <span class="corner tl" aria-hidden="true"></span>
+          <span class="corner tr" aria-hidden="true"></span>
+          <span class="corner bl" aria-hidden="true"></span>
+          <span class="corner br" aria-hidden="true"></span>
+        </div>
+        <div class="portrait-caption">
+          <span>render: live</span>
+          <span>id: ad-01</span>
         </div>
         <p class="permit-label">Contact</p>
         <dl class="permit-fields">
